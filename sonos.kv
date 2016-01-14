@@ -1,0 +1,32 @@
+<Controller>:
+    spacing: "30px"
+
+    BoxLayout:
+        id: players 
+        orientation: "vertical"
+        size_hint: (.3,1)
+
+    BoxLayout:
+        orientation: "vertical"
+        size_hint: (.7,1)
+
+        Label:
+            text: root.playername 
+        Label:
+            text: root.currenttrack 
+        Slider:
+            id: PlayerVolume 
+            orientation: "horizontal"
+            min: 0
+            max: 100
+            steps: 1
+            disabled: False
+            value: root.playervolume
+            on_value: root.volumechanged(*args)
+            on_touch_down: root.volumeslider_touch_down(*args)
+            on_touch_up: root.volumeslider_touch_up(*args)
+        Button:
+            id: playButton
+            on_press: root.play()
+            text: root.playerstatus 
+            disabled: True
