@@ -5,6 +5,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.properties import StringProperty, ListProperty, ObjectProperty, NumericProperty
 import soco
+from soco.events import event_listener
 from threading import Event
 from Queue import Queue, Empty
 
@@ -48,6 +49,8 @@ class Controller(BoxLayout):
             self.rendering.unsubscribe()
         if self.info:
             self.info.unsubscribe()
+        if event_listener.is_running:
+            event_listener.stop()
 
         self.ids.playButton.disabled = False
         self.rendering = self.currentplayer.renderingControl.subscribe(event_queue=self.queue)
