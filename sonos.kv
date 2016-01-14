@@ -15,13 +15,13 @@
         Label:
             text: root.currenttrack 
         Slider:
-            id: PlayerVolume 
+            id: playervolume 
             orientation: "horizontal"
             min: 0
             max: 100
             steps: 1
-            disabled: False
-            value: root.playervolume
+            disabled: True
+            value: 0
             on_value: root.volumechanged(*args)
             on_touch_down: root.volumeslider_touch_down(*args)
             on_touch_up: root.volumeslider_touch_up(*args)

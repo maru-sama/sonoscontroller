@@ -5,7 +5,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.properties import StringProperty, ListProperty, ObjectProperty, NumericProperty
 import soco
-from threading import Thread, Event
+from threading import Event
 from Queue import Queue, Empty
 
 
@@ -23,8 +23,11 @@ class Controller(BoxLayout):
     def __init__(self, **kwargs):
         BoxLayout.__init__(self, **kwargs)
         self.thread = None
+        self.rendering = None
+        self.info = None
         self.prepare_players()
-        Clock.schedule_interval(self.prepare_players,2)
+        self.queue = Queue()
+        Clock.schedule_interval(self.monitor,0)
 
     def prepare_players(self, dt=None):
         player = soco.discovery.any_soco()
@@ -38,19 +41,17 @@ class Controller(BoxLayout):
             self._stop.clear()
         self.ids.players.clear_widgets()
         for p in value:
-            print p
             self.ids.players.add_widget(Player(*p))
 
     def on_currentplayer(self, instance, value):
-        self.ids.playButton.disabled = False
-        self.ids.PlayerVolume.disabled = False
-        if self.thread:
-            self._stop.set()
-            self.thread.join()
-            self._stop.clear()
+        if self.rendering:
+            self.rendering.unsubscribe()
+        if self.info:
+            self.info.unsubscribe()
 
-        self.thread = Thread(target=self.monitor)
-        self.thread.start()
+        self.ids.playButton.disabled = False
+        self.rendering = self.currentplayer.renderingControl.subscribe(event_queue=self.queue)
+        self.info = self.currentplayer.avTransport.subscribe(event_queue=self.queue)
 
     def volumechanged(self, instance, value):
         try:
@@ -65,44 +66,41 @@ class Controller(BoxLayout):
         else:
             self.currentplayer.play()
 
-    def monitor(self):
-        rendering = self.currentplayer.renderingControl.subscribe()
-        info = self.currentplayer.avTransport.subscribe()
-
-        while not self._stop.isSet():
-            try:
-                event = rendering.events.get(timeout=0.4)
-                if not self.activeslider:
-                    try:
-                        self.playervolume = int(event.variables['volume']['Master'])
-                    except:
-                        pass
-            except Empty:
-                pass
-
-            try:
-                event = info.events.get(timeout=0.1)
-                playerstate = event.variables['transport_state']
-                if playerstate == "TRANSITIONING":
-                    continue
-
-                self.playerstatus = playerstate
-                try:
-                    self.currenttrack = event.variables['av_transport_uri_meta_data'].title
-                except:
-                    radiotrack = event.variables['current_track_meta_data'].title
-                    if radiotrack == "x-sonosapi-stream:s15547?sid=254&flags=32":
-                        radiotrack = "Antenne Kärnten"
-                    self.currenttrack = radiotrack
-
-            except Empty:
-                pass
-
+    def monitor(self, dt):
         try:
-            rendering.unsubscribe()
-            info.unsubscribe()
-        except:
-            pass
+            event = self.queue.get_nowait()
+        except Empty:
+            return
+
+        if event.service.service_type == "RenderingControl":
+
+            if event.variables.get('output_fixed'):
+                if event.output_fixed == "1":
+                    self.ids.playervolume.disabled = True
+                    self.ids.playervolume.value = 100
+                    return
+                else:
+                    self.ids.playervolume.disabled = False
+
+            if not self.activeslider:
+                try:
+                    self.ids.playervolume.value = int(event.volume['Master'])
+                except:
+                    pass
+        else:
+            playerstate = event.transport_state
+            if playerstate == "TRANSITIONING":
+                pass
+
+            self.playerstatus = playerstate
+
+            try:
+                self.currenttrack = event.variables['av_transport_uri_meta_data'].title
+            except:
+                radiotrack = event.variables['current_track_meta_data'].title
+                if radiotrack == "x-sonosapi-stream:s15547?sid=254&flags=32":
+                    radiotrack = "Antenne Kärnten"
+                self.currenttrack = radiotrack
 
     def volumeslider_touch_down(self, instance, touch):
         if instance.collide_point(*touch.pos):
