@@ -18,8 +18,6 @@ class Controller(BoxLayout):
     playername = StringProperty()
     playerstatus = StringProperty()
     currenttrack = StringProperty()
-    playervolume = NumericProperty()
-    activeslider = NumericProperty(0)
 
     def __init__(self, **kwargs):
         BoxLayout.__init__(self, **kwargs)
@@ -28,6 +26,7 @@ class Controller(BoxLayout):
         self.info = None
         self.prepare_players()
         self.queue = Queue()
+        self.activeslider = False
         Clock.schedule_interval(self.monitor,0)
 
     def prepare_players(self, dt=None):
@@ -36,10 +35,6 @@ class Controller(BoxLayout):
             self.players = sorted([(x.coordinator, x.label) for x in player.all_groups])
 
     def on_players(self, instance, value):
-        if self.thread:
-            self._stop.set()
-            self.thread.join()
-            self._stop.clear()
         self.ids.players.clear_widgets()
         for p in value:
             self.ids.players.add_widget(Player(*p))
@@ -58,7 +53,7 @@ class Controller(BoxLayout):
 
     def volumechanged(self, instance, value):
         try:
-            if self.activeslider:
+            if selfactiveslider:
                 self.currentplayer.volume = int(value)
         except:
             pass
@@ -107,12 +102,12 @@ class Controller(BoxLayout):
 
     def volumeslider_touch_down(self, instance, touch):
         if instance.collide_point(*touch.pos):
-            self.activeslider = 1
+            self.activeslider = True
             return True
 
     def volumeslider_touch_up(self, instance, touch):
         if touch.grab_current is instance:
-            self.activeslider = 0
+            self.activeslider = False
             return True
 
 
