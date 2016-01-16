@@ -44,8 +44,6 @@ class Controller(BoxLayout):
             self.rendering.unsubscribe()
         if self.info:
             self.info.unsubscribe()
-        if event_listener.is_running:
-            event_listener.stop()
 
         self.ids.playButton.disabled = False
         self.rendering = self.currentplayer.renderingControl.subscribe(event_queue=self.queue)
