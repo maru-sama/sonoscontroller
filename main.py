@@ -88,17 +88,14 @@ class Controller(BoxLayout):
         else:
             playerstate = event.transport_state
             if playerstate == "TRANSITIONING":
-                pass
+                return
 
             self.playerstatus = playerstate
+            currenttrack = event.current_track_meta_data.title
+            if "x-sonosapi-stream" in currenttrack:
+                currenttrack = event.enqueued_transport_uri_meta_data.title
 
-            try:
-                self.currenttrack = event.variables['av_transport_uri_meta_data'].title
-            except:
-                radiotrack = event.variables['current_track_meta_data'].title
-                if radiotrack == "x-sonosapi-stream:s15547?sid=254&flags=32":
-                    radiotrack = "Antenne Kärnten"
-                self.currenttrack = radiotrack
+            self.currenttrack = currenttrack
 
     def volumeslider_touch_down(self, instance, touch):
         if instance.collide_point(*touch.pos):
