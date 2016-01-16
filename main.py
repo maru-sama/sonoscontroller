@@ -53,7 +53,7 @@ class Controller(BoxLayout):
 
     def volumechanged(self, instance, value):
         try:
-            if selfactiveslider:
+            if self.activeslider:
                 self.currentplayer.volume = int(value)
         except:
             pass
