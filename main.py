@@ -95,8 +95,7 @@ class Controller(BoxLayout):
                 event.current_track_meta_data.album_art_uri)
             self.playerstatus = playerstate
             # Is this a radio track
-            if isinstance(event.current_track_meta_data,
-                          soco.data_structures.DidlItem):
+            if type(event.current_track_meta_data) is soco.data_structures.DidlItem:
                 currenttrack = event.enqueued_transport_uri_meta_data.title
             else:
                 metadata = event.current_track_meta_data
