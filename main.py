@@ -61,7 +61,7 @@ class Controller(BoxLayout):
 
     def play(self):
         if (self.playerstatus == "PLAYING"):
-            self.currentplayer.stop()
+            self.currentplayer.pause()
         else:
             self.currentplayer.play()
 
