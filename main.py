@@ -3,12 +3,11 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
-from kivy.properties import StringProperty, ListProperty, ObjectProperty, NumericProperty
-from kivy.uix.image import AsyncImage
+from kivy.properties import StringProperty, ListProperty, ObjectProperty
 import soco
-from soco.events import event_listener
 from threading import Event
 from Queue import Queue, Empty
+
 
 class Controller(BoxLayout):
 
@@ -28,12 +27,13 @@ class Controller(BoxLayout):
         self.prepare_players()
         self.queue = Queue()
         self.activeslider = False
-        Clock.schedule_interval(self.monitor,0)
+        Clock.schedule_interval(self.monitor, 0)
 
     def prepare_players(self, dt=None):
         player = soco.discovery.any_soco()
         if player:
-            self.players = sorted([(x.coordinator, x.label) for x in player.all_groups])
+            self.players = sorted([(x.coordinator, x.label)
+                                  for x in player.all_groups])
 
     def on_players(self, instance, value):
         self.ids.players.clear_widgets()
@@ -47,8 +47,10 @@ class Controller(BoxLayout):
             self.info.unsubscribe()
 
         self.ids.playButton.disabled = False
-        self.rendering = self.currentplayer.renderingControl.subscribe(event_queue=self.queue)
-        self.info = self.currentplayer.avTransport.subscribe(event_queue=self.queue)
+        self.rendering = self.currentplayer.renderingControl.subscribe(
+            event_queue=self.queue)
+        self.info = self.currentplayer.avTransport.subscribe(
+            event_queue=self.queue)
 
     def volumechanged(self, instance, value):
         try:
@@ -88,14 +90,19 @@ class Controller(BoxLayout):
             playerstate = event.transport_state
             if playerstate == "TRANSITIONING":
                 return
-            self.albumart =  "http://%s:1400%s#.jpg" % (self.currentplayer.ip_address, event.current_track_meta_data.album_art_uri)
+            self.albumart = "http://%s:1400%s#.jpg" % (
+                self.currentplayer.ip_address,
+                event.current_track_meta_data.album_art_uri)
             self.playerstatus = playerstate
             # Is this a radio track
-            if type(event.current_track_meta_data) is soco.data_structures.DidlItem:
+            if isinstance(event.current_track_meta_data,
+                          soco.data_structures.DidlItem):
                 currenttrack = event.enqueued_transport_uri_meta_data.title
             else:
                 metadata = event.current_track_meta_data
-                currenttrack = "%s - %s\n%s" % (metadata.creator, metadata.title, metadata.album)
+                currenttrack = "%s - %s\n%s" % (metadata.creator,
+                                                metadata.title,
+                                                metadata.album)
             self.currenttrack = currenttrack
 
     def volumeslider_touch_down(self, instance, touch):
