@@ -4,11 +4,11 @@ from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.properties import StringProperty, ListProperty, ObjectProperty, NumericProperty
+from kivy.uix.image import AsyncImage
 import soco
 from soco.events import event_listener
 from threading import Event
 from Queue import Queue, Empty
-
 
 class Controller(BoxLayout):
 
@@ -18,6 +18,7 @@ class Controller(BoxLayout):
     playername = StringProperty()
     playerstatus = StringProperty()
     currenttrack = StringProperty()
+    albumart = ObjectProperty()
 
     def __init__(self, **kwargs):
         BoxLayout.__init__(self, **kwargs)
@@ -87,12 +88,14 @@ class Controller(BoxLayout):
             playerstate = event.transport_state
             if playerstate == "TRANSITIONING":
                 return
-
+            self.albumart =  "http://%s:1400%s#.jpg" % (self.currentplayer.ip_address, event.current_track_meta_data.album_art_uri)
             self.playerstatus = playerstate
-            currenttrack = event.current_track_meta_data.title
-            if "x-sonosapi-stream" in currenttrack:
+            # Is this a radio track
+            if type(event.current_track_meta_data) is soco.data_structures.DidlItem:
                 currenttrack = event.enqueued_transport_uri_meta_data.title
-
+            else:
+                metadata = event.current_track_meta_data
+                currenttrack = "%s - %s\n%s" % (metadata.creator, metadata.title, metadata.album)
             self.currenttrack = currenttrack
 
     def volumeslider_touch_down(self, instance, touch):
