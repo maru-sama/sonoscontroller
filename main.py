@@ -5,13 +5,13 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
 import soco
-from threading import Event
+from threading import Thread
 from Queue import Queue, Empty
+from time import sleep
 
 
 class Controller(BoxLayout):
 
-    _stop = Event()
     currentplayer = ObjectProperty()
     players = ListProperty()
     playername = StringProperty()
@@ -21,31 +21,34 @@ class Controller(BoxLayout):
 
     def __init__(self, **kwargs):
         BoxLayout.__init__(self, **kwargs)
-        self.thread = None
         self.rendering = None
         self.info = None
-        self.prepare_players()
         self.queue = Queue()
         self.activeslider = False
         Clock.schedule_interval(self.monitor, 0)
+        self.thread = Thread(target=self.prepare_players)
+        self.thread.daemon = True
+        self.thread.start()
 
-    def prepare_players(self, dt=None):
-        player = soco.discovery.any_soco()
-        if player:
-            self.players = sorted([(x.coordinator, x.label)
-                                  for x in player.all_groups])
+    def prepare_players(self):
+        while True:
+            player = soco.discovery.any_soco()
+            if player:
+                self.players = sorted([(x.coordinator, x.label)
+                                       for x in player.all_groups])
+            sleep(2.0)
 
     def on_players(self, instance, value):
-        self.ids.players.clear_widgets()
-        for p in value:
-            self.ids.players.add_widget(Player(*p))
-
-    def on_currentplayer(self, instance, value):
         if self.rendering:
             self.rendering.unsubscribe()
         if self.info:
             self.info.unsubscribe()
+        self.ids.players.clear_widgets()
 
+        for p in value:
+            self.ids.players.add_widget(Player(*p))
+
+    def on_currentplayer(self, instance, value):
         self.ids.playButton.disabled = False
         self.rendering = self.currentplayer.renderingControl.subscribe(
             event_queue=self.queue)
@@ -82,6 +85,11 @@ class Controller(BoxLayout):
 
     def parseavevent(self, event):
         metadata = event.current_track_meta_data
+
+        # This can happen if the the player becomes part of a group
+        if metadata == "" and event.enqueued_transport_uri_meta_data == "":
+            return
+
         playerstate = event.transport_state
         if playerstate == "TRANSITIONING":
             return
@@ -142,7 +150,5 @@ class SonosApp(App):
         self.root = Controller()
         return self.root
 
-    def on_stop(self):
-        self.root._stop.set()
 
 SonosApp().run()
