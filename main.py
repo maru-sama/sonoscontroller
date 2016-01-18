@@ -3,11 +3,14 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.dropdown import DropDown
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
 import soco
 from threading import Thread
 from Queue import Queue, Empty
 from time import sleep
+from functools import partial
 
 
 class Controller(BoxLayout):
@@ -29,6 +32,7 @@ class Controller(BoxLayout):
         self.thread = Thread(target=self.prepare_players)
         self.thread.daemon = True
         self.thread.start()
+        self.dropdown = DropDown()
 
     def prepare_players(self):
         while True:
@@ -136,6 +140,23 @@ class Controller(BoxLayout):
         if touch.grab_current is instance:
             self.activeslider = False
             return True
+
+    def makegroup(self, player, widget):
+        if player in self.currentplayer.group.members:
+            player.unjoin()
+        else:
+            player.join(self.currentplayer)
+
+    def editgroup(self, widget):
+        self.dropdown.clear_widgets()
+        for player in self.currentplayer.all_zones:
+            btn = ToggleButton(text='%s' % (player.player_name,),
+                               size_hint_y=None, height=44)
+            btn.bind(on_release=partial(self.makegroup, player))
+            if player in self.currentplayer.group.members:
+                btn.state = "down"
+            self.dropdown.add_widget(btn)
+        self.dropdown.open(widget)
 
 
 class Player(Button):
