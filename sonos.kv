@@ -1,5 +1,4 @@
 <Controller>:
-    spacing: "30px"
 
     BoxLayout:
         id: players 
@@ -21,7 +20,7 @@
         Label:
             text: root.currenttrack 
             size_hint: (1,0.1)
-            font_size: 20
+            font_size: 15
             halign: "center"
         Slider:
             id: playervolume 
@@ -35,9 +34,15 @@
             on_touch_down: root.volumeslider_touch_down(*args)
             on_touch_up: root.volumeslider_touch_up(*args)
             size_hint: (1,0.1)
-        Button:
-            id: playButton
-            on_press: root.play()
-            text: root.playerstatus 
-            disabled: True
+        BoxLayout:
+            orientation: "horizontal"
             size_hint: (1,0.2)
+            Button:
+                id: playAntenne
+                on_press: root.playantenne()
+                text: "Antenne Kärnten"
+            Button:
+                id: playButton
+                on_press: root.play()
+                text: root.playerstatus
+                disabled: True

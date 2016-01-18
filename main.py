@@ -49,6 +49,10 @@ class Controller(BoxLayout):
             self.ids.players.add_widget(Player(*p))
 
     def on_currentplayer(self, instance, value):
+        if self.rendering:
+            self.rendering.unsubscribe()
+        if self.info:
+            self.info.unsubscribe()
         self.ids.playButton.disabled = False
         self.rendering = self.currentplayer.renderingControl.subscribe(
             event_queue=self.queue)
@@ -67,6 +71,10 @@ class Controller(BoxLayout):
             self.currentplayer.pause()
         else:
             self.currentplayer.play()
+
+    def playantenne(self):
+        self.currentplayer.play_uri(uri="x-sonosapi-stream:s15547?sid=254&flags=32",
+                                    title="Antenne")
 
     def parserenderingevent(self, event):
         if event.variables.get('output_fixed'):
