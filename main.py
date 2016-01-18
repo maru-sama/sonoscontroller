@@ -65,6 +65,41 @@ class Controller(BoxLayout):
         else:
             self.currentplayer.play()
 
+    def parserenderingevent(self, event):
+        if event.variables.get('output_fixed'):
+            if event.output_fixed == "1":
+                self.ids.playervolume.disabled = True
+                self.ids.playervolume.value = 100
+                return
+            else:
+                self.ids.playervolume.disabled = False
+
+        if not self.activeslider:
+            try:
+                self.ids.playervolume.value = int(event.volume['Master'])
+            except:
+                pass
+
+    def parseavevent(self, event):
+        metadata = event.current_track_meta_data
+        playerstate = event.transport_state
+        if playerstate == "TRANSITIONING":
+            return
+
+        self.playerstatus = playerstate
+        self.albumart = "http://%s:1400%s#.jpg" % (
+            self.currentplayer.ip_address,
+            metadata.album_art_uri)
+
+        # Is this a radio track
+        if type(event.current_track_meta_data) is soco.data_structures.DidlItem:
+            currenttrack = event.enqueued_transport_uri_meta_data.title
+        else:
+            currenttrack = "%s - %s\n%s" % (metadata.creator,
+                                            metadata.title,
+                                            metadata.album)
+        self.currenttrack = currenttrack
+
     def monitor(self, dt):
         try:
             event = self.queue.get_nowait()
@@ -72,37 +107,9 @@ class Controller(BoxLayout):
             return
 
         if event.service.service_type == "RenderingControl":
-
-            if event.variables.get('output_fixed'):
-                if event.output_fixed == "1":
-                    self.ids.playervolume.disabled = True
-                    self.ids.playervolume.value = 100
-                    return
-                else:
-                    self.ids.playervolume.disabled = False
-
-            if not self.activeslider:
-                try:
-                    self.ids.playervolume.value = int(event.volume['Master'])
-                except:
-                    pass
+            self.parserenderingevent(event)
         else:
-            playerstate = event.transport_state
-            if playerstate == "TRANSITIONING":
-                return
-            self.albumart = "http://%s:1400%s#.jpg" % (
-                self.currentplayer.ip_address,
-                event.current_track_meta_data.album_art_uri)
-            self.playerstatus = playerstate
-            # Is this a radio track
-            if type(event.current_track_meta_data) is soco.data_structures.DidlItem:
-                currenttrack = event.enqueued_transport_uri_meta_data.title
-            else:
-                metadata = event.current_track_meta_data
-                currenttrack = "%s - %s\n%s" % (metadata.creator,
-                                                metadata.title,
-                                                metadata.album)
-            self.currenttrack = currenttrack
+            self.parseavevent(event)
 
     def volumeslider_touch_down(self, instance, touch):
         if instance.collide_point(*touch.pos):
