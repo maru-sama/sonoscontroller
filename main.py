@@ -43,10 +43,6 @@ class Controller(BoxLayout):
             sleep(2.0)
 
     def on_players(self, instance, value):
-        if self.rendering:
-            self.rendering.unsubscribe()
-        if self.info:
-            self.info.unsubscribe()
         self.ids.players.clear_widgets()
 
         for p in value:
