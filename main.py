@@ -38,8 +38,9 @@ class Controller(BoxLayout):
         while True:
             player = soco.discovery.any_soco()
             if player:
-                self.players = sorted([(x.coordinator, x.label)
-                                       for x in player.all_groups])
+                self.players = [(x.coordinator, x.label)
+                                for x in sorted(player.all_groups,
+                                                key=lambda x: x.label)]
             sleep(2.0)
 
     def on_players(self, instance, value):
@@ -147,7 +148,8 @@ class Controller(BoxLayout):
 
     def editgroup(self, widget):
         self.dropdown.clear_widgets()
-        for player in sorted(self.currentplayer.all_zones):
+        for player in sorted(self.currentplayer.all_zones,
+                             key=lambda x: x.player_name):
             btn = ToggleButton(text='%s' % (player.player_name,),
                                size_hint_y=None, height=60)
             btn.bind(on_release=partial(self.makegroup, player))
