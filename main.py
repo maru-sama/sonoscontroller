@@ -161,6 +161,9 @@ class Player(Button):
     name = StringProperty()
 
     def __init__(self, sonos, label, **kwargs):
+        self.halign = "center"
+        self.valign = "middle"
+        self.text_size = self.size
         Button.__init__(self, **kwargs)
         self.controller = sonos
         self.text = label
