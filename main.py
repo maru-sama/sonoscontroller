@@ -36,11 +36,14 @@ class Controller(BoxLayout):
 
     def prepare_players(self):
         while True:
-            player = soco.discovery.any_soco()
-            if player:
-                self.players = [(x.coordinator, x.label)
-                                for x in sorted(player.all_groups,
-                                                key=lambda x: x.label)]
+            try:
+                player = soco.discovery.any_soco()
+                if player:
+                    self.players = [(x.coordinator, x.label)
+                                    for x in sorted(player.all_groups,
+                                                    key=lambda x: x.label)]
+            except:
+                pass
             sleep(2.0)
 
     def on_players(self, instance, value):
