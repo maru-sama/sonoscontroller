@@ -38,12 +38,15 @@
             orientation: "horizontal"
             size_hint: (1,0.2)
             Button:
+                id: groupButton
                 text: "Group"
                 on_release: root.editgroup(*args)
+                disabled: True
             Button:
                 id: playAntenne
                 on_press: root.playantenne()
                 text: "Antenne Kärnten"
+                disabled: True
             Button:
                 id: playButton
                 on_press: root.play()

@@ -58,6 +58,8 @@ class Controller(BoxLayout):
         if self.info:
             self.info.unsubscribe()
         self.ids.playButton.disabled = False
+        self.ids.groupButton.disabled = False
+        self.ids.playAntenne.disabled = False
         self.rendering = self.currentplayer.renderingControl.subscribe(
             event_queue=self.queue)
         self.info = self.currentplayer.avTransport.subscribe(
@@ -149,9 +151,9 @@ class Controller(BoxLayout):
 
     def editgroup(self, widget):
         self.dropdown.clear_widgets()
-        for player in self.currentplayer.all_zones:
+        for player in sorted(self.currentplayer.all_zones):
             btn = ToggleButton(text='%s' % (player.player_name,),
-                               size_hint_y=None, height=44)
+                               size_hint_y=None, height=60)
             btn.bind(on_release=partial(self.makegroup, player))
             if player in self.currentplayer.group.members:
                 btn.state = "down"
