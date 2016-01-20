@@ -5,6 +5,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.dropdown import DropDown
+from kivy.uix.label import Label
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
 import soco
 from threading import Thread
@@ -13,36 +14,40 @@ from time import sleep
 from functools import partial
 
 
+class Placeholder(Label):
+    def teardown(self):
+        pass
+
+
 class CurrentPlayer(BoxLayout):
-    currentplayer = ObjectProperty()
     players = ListProperty()
     playername = StringProperty()
     playerstatus = StringProperty()
     currenttrack = StringProperty()
     albumart = ObjectProperty()
 
-    def __init__(self, **kwargs):
+    def __init__(self, player, **kwargs):
         BoxLayout.__init__(self, **kwargs)
-        self.rendering = None
-        self.info = None
         self.queue = Queue()
         self.activeslider = False
-        Clock.schedule_interval(self.monitor, 0)
         self.dropdown = DropDown()
-
-    def on_currentplayer(self, instance, value):
-        if self.rendering:
-            self.rendering.unsubscribe()
-        if self.info:
-            self.info.unsubscribe()
-        self.ids.playButton.disabled = False
-        self.ids.groupButton.disabled = False
-        self.ids.playAntenne.disabled = False
+        self.currentplayer = player
+        self.playerstatus = "Pending ...."
         self.playername = self.currentplayer.group.label
         self.rendering = self.currentplayer.renderingControl.subscribe(
             event_queue=self.queue)
         self.info = self.currentplayer.avTransport.subscribe(
             event_queue=self.queue)
+        self.timer = Clock.schedule_interval(self.monitor, 0)
+
+    def teardown(self):
+
+        Clock.unschedule(self.timer)
+
+        if self.rendering:
+            self.rendering.unsubscribe()
+        if self.info:
+            self.info.unsubscribe()
 
     def volumechanged(self, instance, value):
         try:
@@ -151,6 +156,8 @@ class Controller(BoxLayout):
         self.thread = Thread(target=self.prepare_players)
         self.thread.daemon = True
         self.thread.start()
+        self.player = Placeholder()
+        self.add_widget(self.player)
 
     def prepare_players(self):
         while True:
@@ -165,10 +172,23 @@ class Controller(BoxLayout):
             sleep(2.0)
 
     def on_players(self, instance, value):
-        self.ids.players.clear_widgets()
+        if type(self.player) is CurrentPlayer:
+            if self.player.currentplayer not in value:
+                self.player.teardown()
+                self.remove_widget(self.player)
+                self.player = Placeholder()
+                self.add_widget(self.player)
 
+        self.ids.players.clear_widgets()
         for p in value:
             self.ids.players.add_widget(Player(p))
+
+    def setplayer(self, player):
+        if self.player:
+            self.player.teardown()
+            self.remove_widget(self.player)
+        self.player = CurrentPlayer(player, orientation="vertical")
+        self.add_widget(self.player)
 
 
 class Player(Button):
@@ -179,7 +199,7 @@ class Player(Button):
         self.text = sonos.group.label
 
     def on_press(self):
-        self.parent.parent.player.currentplayer = self.controller
+        self.parent.parent.setplayer(self.controller)
 
 
 class SonosApp(App):

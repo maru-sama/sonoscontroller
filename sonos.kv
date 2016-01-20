@@ -1,3 +1,6 @@
+<Placeholder>:
+    text: "Please select a controller"
+
 <Player>:
     text_size: self.size
     halign: "center"
@@ -24,7 +27,6 @@
         min: 0
         max: 100
         steps: 1
-        disabled: True
         value: 0
         on_value: root.volumechanged(*args)
         on_touch_down: root.volumeslider_touch_down(*args)
@@ -37,26 +39,18 @@
             id: groupButton
             text: "Group"
             on_release: root.editgroup(*args)
-            disabled: True
         Button:
             id: playAntenne
             on_press: root.playantenne()
             text: "Antenne Kärnten"
-            disabled: True
         Button:
             id: playButton
             on_press: root.play()
             text: root.playerstatus
-            disabled: True
 
 <Controller>:
-    player: player
     BoxLayout:
         id: players 
         orientation: "vertical"
         size_hint: (.3,1)
 
-    CurrentPlayer:
-        id: player
-        orientation: "vertical"
-        size_hint: (.7,1)
