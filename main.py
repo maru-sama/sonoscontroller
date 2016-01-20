@@ -79,7 +79,7 @@ class Controller(BoxLayout):
             self.currentplayer.play()
 
     def playantenne(self):
-        self.currentplayer.play_uri(uri="x-sonosapi-stream:s15547?sid=254&flags=32",
+        self.currentplayer.play_uri(uri="x-sonosapi-stream:s15547?sid=254&flags=32", #noqa
                                     title="Antenne")
 
     def parserenderingevent(self, event):
@@ -114,7 +114,7 @@ class Controller(BoxLayout):
             metadata.album_art_uri)
 
         # Is this a radio track
-        if type(event.current_track_meta_data) is soco.data_structures.DidlItem:
+        if type(event.current_track_meta_data) is soco.data_structures.DidlItem: #noqa
             currenttrack = event.enqueued_transport_uri_meta_data.title
         else:
             currenttrack = "%s - %s\n%s" % (metadata.creator,
