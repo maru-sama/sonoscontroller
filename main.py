@@ -163,18 +163,13 @@ class Controller(BoxLayout):
 
 
 class Player(Button):
-    name = StringProperty()
 
     def __init__(self, sonos, label, **kwargs):
-        self.halign = "center"
-        self.valign = "middle"
-        self.text_size = self.size
         Button.__init__(self, **kwargs)
         self.controller = sonos
         self.text = label
-        self.bind(on_press=self.setplayer)
 
-    def setplayer(self, touch):
+    def on_press(self):
         self.parent.parent.currentplayer = self.controller
         self.parent.parent.playername = self.text
 
