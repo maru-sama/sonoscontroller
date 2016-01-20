@@ -13,8 +13,7 @@ from time import sleep
 from functools import partial
 
 
-class Controller(BoxLayout):
-
+class CurrentPlayer(BoxLayout):
     currentplayer = ObjectProperty()
     players = ListProperty()
     playername = StringProperty()
@@ -29,28 +28,7 @@ class Controller(BoxLayout):
         self.queue = Queue()
         self.activeslider = False
         Clock.schedule_interval(self.monitor, 0)
-        self.thread = Thread(target=self.prepare_players)
-        self.thread.daemon = True
-        self.thread.start()
         self.dropdown = DropDown()
-
-    def prepare_players(self):
-        while True:
-            try:
-                player = soco.discovery.any_soco()
-                if player:
-                    self.players = [(x.coordinator, x.label)
-                                    for x in sorted(player.all_groups,
-                                                    key=lambda x: x.label)]
-            except:
-                pass
-            sleep(2.0)
-
-    def on_players(self, instance, value):
-        self.ids.players.clear_widgets()
-
-        for p in value:
-            self.ids.players.add_widget(Player(*p))
 
     def on_currentplayer(self, instance, value):
         if self.rendering:
@@ -60,6 +38,7 @@ class Controller(BoxLayout):
         self.ids.playButton.disabled = False
         self.ids.groupButton.disabled = False
         self.ids.playAntenne.disabled = False
+        self.playername = self.currentplayer.group.label
         self.rendering = self.currentplayer.renderingControl.subscribe(
             event_queue=self.queue)
         self.info = self.currentplayer.avTransport.subscribe(
@@ -148,6 +127,7 @@ class Controller(BoxLayout):
             player.unjoin()
         else:
             player.join(self.currentplayer)
+        self.playername = self.currentplayer.group.label
 
     def editgroup(self, widget):
         self.dropdown.clear_widgets()
@@ -162,16 +142,44 @@ class Controller(BoxLayout):
         self.dropdown.open(widget)
 
 
+class Controller(BoxLayout):
+    player = ObjectProperty(None)
+    players = ListProperty()
+
+    def __init__(self, **kwargs):
+        BoxLayout.__init__(self, **kwargs)
+        self.thread = Thread(target=self.prepare_players)
+        self.thread.daemon = True
+        self.thread.start()
+
+    def prepare_players(self):
+        while True:
+            try:
+                player = soco.discovery.any_soco()
+                if player:
+                    self.players = [x.coordinator for x in
+                                    sorted(player.all_groups,
+                                           key=lambda x: x.label)]
+            except:
+                pass
+            sleep(2.0)
+
+    def on_players(self, instance, value):
+        self.ids.players.clear_widgets()
+
+        for p in value:
+            self.ids.players.add_widget(Player(p))
+
+
 class Player(Button):
 
-    def __init__(self, sonos, label, **kwargs):
+    def __init__(self, sonos, **kwargs):
         Button.__init__(self, **kwargs)
         self.controller = sonos
-        self.text = label
+        self.text = sonos.group.label
 
     def on_press(self):
-        self.parent.parent.currentplayer = self.controller
-        self.parent.parent.playername = self.text
+        self.parent.parent.player.currentplayer = self.controller
 
 
 class SonosApp(App):
