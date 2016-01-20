@@ -132,7 +132,7 @@ class CurrentPlayer(BoxLayout):
             player.unjoin()
         else:
             player.join(self.currentplayer)
-        self.playername = self.currentplayer.group.label
+        self.updatename()
 
     def editgroup(self, widget):
         self.dropdown.clear_widgets()
@@ -145,6 +145,9 @@ class CurrentPlayer(BoxLayout):
                 btn.state = "down"
             self.dropdown.add_widget(btn)
         self.dropdown.open(widget)
+
+    def updatename(self):
+        self.playername = self.currentplayer.group.label
 
 
 class Controller(BoxLayout):
@@ -178,6 +181,8 @@ class Controller(BoxLayout):
                 self.remove_widget(self.player)
                 self.player = Placeholder()
                 self.add_widget(self.player)
+            else:
+                self.player.updatename()
 
         self.ids.players.clear_widgets()
         for p in value:
