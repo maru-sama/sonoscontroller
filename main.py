@@ -82,7 +82,11 @@ class CurrentPlayer(BoxLayout):
                 pass
 
     def parseavevent(self, event):
-        metadata = event.current_track_meta_data
+        try:
+            metadata = event.current_track_meta_data
+        except:
+            print event.variables
+            return
 
         # This can happen if the the player becomes part of a group
         if metadata == "" and event.enqueued_transport_uri_meta_data == "":
@@ -192,7 +196,7 @@ class Controller(BoxLayout):
         if self.player:
             self.player.teardown()
             self.remove_widget(self.player)
-        self.player = CurrentPlayer(player, orientation="vertical")
+        self.player = CurrentPlayer(player)
         self.add_widget(self.player)
 
 

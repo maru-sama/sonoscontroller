@@ -7,7 +7,7 @@
     valign: "middle"
 
 <CurrentPlayer>:
-
+    orientation: "vertical"
     Label:
         text: root.playername
         size_hint: (1,0.1)
@@ -15,7 +15,9 @@
     AsyncImage:
         id: albumart
         source: root.albumart
-        size_hint: (1,0.5)
+        size: self.texture_size
+        size_hint: None, 0.5
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     Label:
         text: root.currenttrack
         size_hint: (1,0.1)
