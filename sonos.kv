@@ -43,8 +43,8 @@
             on_release: root.editgroup(*args)
         Button:
             id: playAntenne
-            on_press: root.playantenne()
-            text: "Antenne Kärnten"
+            on_release: root.radiostations(*args)
+            text: "Radio Stations"
         Button:
             id: playButton
             on_press: root.play()

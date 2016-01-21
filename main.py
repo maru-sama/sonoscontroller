@@ -31,6 +31,7 @@ class CurrentPlayer(BoxLayout):
         self.queue = Queue()
         self.activeslider = False
         self.dropdown = DropDown()
+        self.stationdropdown = DropDown()
         self.currentplayer = player
         self.playerstatus = "Pending ...."
         self.playername = self.currentplayer.group.label
@@ -62,9 +63,21 @@ class CurrentPlayer(BoxLayout):
         else:
             self.currentplayer.play()
 
-    def playantenne(self):
-        self.currentplayer.play_uri(uri="x-sonosapi-stream:s15547?sid=254&flags=32", #noqa
-                                    title="Antenne")
+    def radiostations(self, widget):
+        self.stationdropdown.clear_widgets()
+        for station in self.currentplayer.get_favorite_radio_stations()['favorites']: # noqa
+            btn = Button(text='%s' % (station['title'],),
+                         size_hint_y=None, height=60,
+                         halign="center", valign="middle")
+            btn.bind(size=btn.setter("text_size"))
+            btn.bind(on_release=partial(self.playradio, station))
+            self.stationdropdown.add_widget(btn)
+        self.stationdropdown.open(widget)
+
+    def playradio(self, station, widget):
+        self.currentplayer.play_uri(uri=station['uri'], #noqa
+                                    title=station['title'])
+        self.stationdropdown.select(station['title'])
 
     def parserenderingevent(self, event):
         if event.variables.get('output_fixed'):
