@@ -61,7 +61,10 @@ class CurrentPlayer(BoxLayout):
         if (self.playerstatus == "PLAYING"):
             self.currentplayer.pause()
         else:
-            self.currentplayer.play()
+            try:
+                self.currentplayer.play()
+            except:
+                pass
 
     def radiostations(self, widget):
         self.stationdropdown.clear_widgets()
@@ -95,6 +98,11 @@ class CurrentPlayer(BoxLayout):
                 pass
 
     def parseavevent(self, event):
+        playerstate = event.transport_state
+        if playerstate == "TRANSITIONING":
+            return
+
+        self.playerstatus = playerstate
         try:
             metadata = event.current_track_meta_data
         except:
@@ -105,11 +113,6 @@ class CurrentPlayer(BoxLayout):
         if metadata == "" and event.enqueued_transport_uri_meta_data == "":
             return
 
-        playerstate = event.transport_state
-        if playerstate == "TRANSITIONING":
-            return
-
-        self.playerstatus = playerstate
         self.albumart = "http://%s:1400%s#.jpg" % (
             self.currentplayer.ip_address,
             metadata.album_art_uri)
@@ -120,7 +123,8 @@ class CurrentPlayer(BoxLayout):
         else:
             currenttrack = "%s - %s\n%s" % (metadata.creator,
                                             metadata.title,
-                                            metadata.album)
+                                            metadata.album if
+                                            hasattr(metadata, 'album') else "")
         self.currenttrack = currenttrack
 
     def monitor(self, dt):
@@ -192,7 +196,7 @@ class Controller(BoxLayout):
             sleep(2.0)
 
     def on_players(self, instance, value):
-        if type(self.player) is CurrentPlayer:
+        if isinstance(self.player, CurrentPlayer):
             if self.player.currentplayer not in value:
                 self.player.teardown()
                 self.remove_widget(self.player)
