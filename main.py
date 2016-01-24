@@ -46,9 +46,15 @@ class CurrentPlayer(BoxLayout):
         Clock.unschedule(self.timer)
 
         if self.rendering:
-            self.rendering.unsubscribe()
+            try:
+                self.rendering.unsubscribe()
+            except:
+                pass
         if self.info:
-            self.info.unsubscribe()
+            try:
+                self.info.unsubscribe()
+            except:
+                pass
 
     def volumechanged(self, instance, value):
         try:
