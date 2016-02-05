@@ -89,13 +89,12 @@ class CurrentPlayer(BoxLayout):
         self.stationdropdown.select(station['title'])
 
     def parserenderingevent(self, event):
-        if event.variables.get('output_fixed'):
-            if event.output_fixed == "1":
-                self.ids.playervolume.disabled = True
-                self.ids.playervolume.value = 100
-                return
-            else:
-                self.ids.playervolume.disabled = False
+        if event.variables.get('output_fixed') == 1:
+            self.ids.playervolume.disabled = True
+            self.ids.playervolume.value = 100
+            return
+        else:
+            self.ids.playervolume.disabled = False
 
         if not self.activeslider:
             try:
