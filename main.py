@@ -59,7 +59,8 @@ class CurrentPlayer(BoxLayout):
     def volumechanged(self, instance, value):
         try:
             if self.activeslider:
-                self.currentplayer.volume = int(value)
+                for p in self.currentplayer.group.members:
+                    p.volume = int(value)
         except:
             pass
 
