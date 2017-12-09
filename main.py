@@ -116,12 +116,14 @@ class CurrentPlayer(BoxLayout):
             return
 
         # This can happen if the the player becomes part of a group
-        if metadata == "" and event.enqueued_transport_uri_meta_data == "":
+        if metadata == "":
             return
-
-        self.albumart = "http://%s:1400%s#.jpg" % (
-            self.currentplayer.ip_address,
-            metadata.album_art_uri)
+        if metadata.album_art_uri.startswith("http"):
+            self.albumart = metadata.album_art_uri
+        else:
+            self.albumart = "http://%s:1400%s#.jpg" % (
+                self.currentplayer.ip_address,
+                metadata.album_art_uri)
 
         # Is this a radio track
         if type(event.current_track_meta_data) is soco.data_structures.DidlItem: #noqa
