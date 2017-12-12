@@ -1,0 +1,2 @@
+soco
+kivy
