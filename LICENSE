@@ -24,10 +24,3 @@ follows:
     COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
     IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
     CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-External Components
-===================
-
-For convenience reasons we include local copies of SoCo (https://github.com/rahims/SoCo)
-and Requests (http://www.python-requests.org). These components come with their own 
-licenses and are thus not covered by the license statement above.
