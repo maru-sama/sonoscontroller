@@ -112,11 +112,10 @@ class CurrentPlayer(BoxLayout):
         try:
             metadata = event.current_track_meta_data
         except:
-            print event.variables
             return
 
         # This can happen if the the player becomes part of a group
-        if metadata == "":
+        if metadata == "" or not hasattr(metadata, "album_art_uri"):
             return
         if metadata.album_art_uri.startswith("http"):
             self.albumart = metadata.album_art_uri
