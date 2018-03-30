@@ -86,7 +86,7 @@ class CurrentPlayer(BoxLayout):
 
     def playradio(self, station, widget):
         self.currentplayer.play_uri(uri=station['uri'], #noqa
-                                    title=station['title'])
+                                    title="Radio")
         self.stationdropdown.select(station['title'])
 
     def parserenderingevent(self, event):
