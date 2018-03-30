@@ -11,18 +11,16 @@
     Label:
         text: root.playername
         size_hint: (1,0.1)
-        font_size: 25
     AsyncImage:
         id: albumart
         source: root.albumart
         size: self.texture_size
-        size_hint: None, 0.6
+        size_hint: None, 0.8
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     Label:
         text: root.currenttrack
         size_hint: (1,0.1)
         text_size: self.size
-        font_size: 15
         halign: "center"
     Slider:
         id: playervolume
