@@ -11,28 +11,34 @@
     Label:
         text: root.playername
         size_hint: (1,0.1)
-    AsyncImage:
-        id: albumart
-        source: root.albumart
-        size: self.texture_size
-        size_hint: None, 0.8
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        font_size: 25
+    BoxLayout:
+        orientation: "horizontal"
+        padding: (50, 0, 40, 0)
+        size_hint: (1,0.6)
+        AsyncImage:
+            id: albumart
+            source: root.albumart
+            size: self.texture_size
+            size_hint: (0.9,1)
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        Slider:
+            id: playervolume
+            orientation: "vertical"
+            min: 0
+            max: 100
+            steps: 1
+            value: 0
+            size_hint: (0.1,1)
+            on_value: root.volumechanged(*args)
+            on_touch_down: root.volumeslider_touch_down(*args)
+            on_touch_up: root.volumeslider_touch_up(*args)
     Label:
         text: root.currenttrack
         size_hint: (1,0.1)
         text_size: self.size
+        font_size: 15
         halign: "center"
-    Slider:
-        id: playervolume
-        orientation: "horizontal"
-        min: 0
-        max: 100
-        steps: 1
-        value: 0
-        on_value: root.volumechanged(*args)
-        on_touch_down: root.volumeslider_touch_down(*args)
-        on_touch_up: root.volumeslider_touch_up(*args)
-        size_hint: (1,0.1)
     BoxLayout:
         orientation: "horizontal"
         size_hint: (1,0.2)
