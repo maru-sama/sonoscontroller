@@ -9,10 +9,13 @@ from kivy.uix.label import Label
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
 import soco
 from threading import Thread
-from Queue import Queue, Empty
 from time import sleep
 from functools import partial
 
+try:
+    from Queue import Queue, Empty
+except ImportError:
+    from queue import Queue, Empty
 
 class Placeholder(Label):
     def teardown(self):
