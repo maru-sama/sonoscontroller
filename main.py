@@ -43,6 +43,7 @@ class CurrentPlayer(BoxLayout):
         self.info = self.currentplayer.avTransport.subscribe(
             event_queue=self.queue)
         self.timer = Clock.schedule_interval(self.monitor, 0)
+        self.swipe = 0
 
     def teardown(self):
 
@@ -180,6 +181,19 @@ class CurrentPlayer(BoxLayout):
     def updatename(self):
         self.playername = self.currentplayer.group.label
 
+    def swipe_start(self, instance, touch):
+        if instance.collide_point(*touch.pos):
+            self.swipe = touch.x
+            touch.grab(self)
+            return True
+
+    def swipe_stop(self, instance, touch):
+        if touch.grab_current is self:
+            if touch.x > self.swipe:
+                self.currentplayer.next()
+            elif touch.x < self.swipe:
+                self.currentplayer.previous()
+            return True
 
 class Controller(BoxLayout):
     player = ObjectProperty(None)

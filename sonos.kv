@@ -21,6 +21,8 @@
             size: self.texture_size
             size_hint: (0.9,1)
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            on_touch_down: root.swipe_start(*args)
+            on_touch_up: root.swipe_stop(*args)
         Slider:
             id: playervolume
             orientation: "vertical"
