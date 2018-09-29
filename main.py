@@ -190,9 +190,9 @@ class CurrentPlayer(BoxLayout):
     def swipe_stop(self, instance, touch):
         if touch.grab_current is self:
             if touch.x > self.swipe:
-                self.currentplayer.next()
-            elif touch.x < self.swipe:
                 self.currentplayer.previous()
+            elif touch.x < self.swipe:
+                self.currentplayer.next()
             return True
 
 class Controller(BoxLayout):
