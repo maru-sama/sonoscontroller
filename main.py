@@ -1,6 +1,6 @@
 # coding=UTF-8
 from kivy.app import App
-from kivy.clock import Clock
+from kivy.clock import mainthread
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
@@ -13,9 +13,10 @@ from time import sleep
 from functools import partial
 
 try:
-    from Queue import Queue, Empty
+    from Queue import Queue
 except ImportError:
-    from queue import Queue, Empty
+    from queue import Queue
+
 
 class Placeholder(Label):
     def teardown(self):
@@ -38,17 +39,18 @@ class CurrentPlayer(BoxLayout):
         self.currentplayer = player
         self.playerstatus = "Pending ...."
         self.playername = self.currentplayer.group.label
+        self.swipe = 0
         self.rendering = self.currentplayer.renderingControl.subscribe(
             event_queue=self.queue)
         self.info = self.currentplayer.avTransport.subscribe(
             event_queue=self.queue)
-        self.timer = Clock.schedule_interval(self.monitor, 0)
-        self.swipe = 0
+        self.thread = Thread(target=self.monitor)
+        self.thread.daemon = True
+        self.thread.start()
 
     def teardown(self):
 
-        Clock.unschedule(self.timer)
-
+        self.queue.put(None)
         if self.rendering:
             try:
                 self.rendering.unsubscribe()
@@ -107,6 +109,10 @@ class CurrentPlayer(BoxLayout):
             except:
                 pass
 
+    @mainthread
+    def update_albumart(self, url):
+        self.albumart = url
+
     def parseavevent(self, event):
         playerstate = event.transport_state
         if playerstate == "TRANSITIONING":
@@ -122,11 +128,12 @@ class CurrentPlayer(BoxLayout):
         if metadata == "" or not hasattr(metadata, "album_art_uri"):
             return
         if metadata.album_art_uri.startswith("http"):
-            self.albumart = metadata.album_art_uri
+            albumart = metadata.album_art_uri
         else:
-            self.albumart = "http://%s:1400%s#.jpg" % (
+            albumart = "http://%s:1400%s#.jpg" % (
                 self.currentplayer.ip_address,
                 metadata.album_art_uri)
+        self.update_albumart(albumart)
 
         # Is this a radio track
         if type(event.current_track_meta_data) is soco.data_structures.DidlItem: #noqa
@@ -138,16 +145,17 @@ class CurrentPlayer(BoxLayout):
                                             hasattr(metadata, 'album') else "")
         self.currenttrack = currenttrack
 
-    def monitor(self, dt):
-        try:
-            event = self.queue.get_nowait()
-        except Empty:
+    def monitor(self):
+        event = self.queue.get()
+        if event is None:
             return
 
         if event.service.service_type == "RenderingControl":
             self.parserenderingevent(event)
         else:
             self.parseavevent(event)
+
+        self.monitor()
 
     def volumeslider_touch_down(self, instance, touch):
         if instance.collide_point(*touch.pos):
@@ -197,6 +205,7 @@ class CurrentPlayer(BoxLayout):
             except:
                 pass
             return True
+
 
 class Controller(BoxLayout):
     player = ObjectProperty(None)
