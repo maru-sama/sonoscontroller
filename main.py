@@ -146,16 +146,16 @@ class CurrentPlayer(BoxLayout):
         self.currenttrack = currenttrack
 
     def monitor(self):
-        event = self.queue.get()
-        if event is None:
-            return
+        while True:
+            event = self.queue.get()
+            if event is None:
+                break
 
-        if event.service.service_type == "RenderingControl":
-            self.parserenderingevent(event)
-        else:
-            self.parseavevent(event)
+            if event.service.service_type == "RenderingControl":
+                self.parserenderingevent(event)
+            else:
+                self.parseavevent(event)
 
-        self.monitor()
 
     def volumeslider_touch_down(self, instance, touch):
         if instance.collide_point(*touch.pos):
