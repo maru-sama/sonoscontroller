@@ -41,9 +41,9 @@ class CurrentPlayer(BoxLayout):
         self.playername = self.currentplayer.group.label
         self.swipe = 0
         self.rendering = self.currentplayer.renderingControl.subscribe(
-            event_queue=self.queue)
+            auto_renew=True, event_queue=self.queue)
         self.info = self.currentplayer.avTransport.subscribe(
-            event_queue=self.queue)
+            auto_renew=True, event_queue=self.queue)
         self.thread = Thread(target=self.monitor)
         self.thread.daemon = True
         self.thread.start()
@@ -149,7 +149,7 @@ class CurrentPlayer(BoxLayout):
         while True:
             event = self.queue.get()
             if event is None:
-                break
+                return
 
             if event.service.service_type == "RenderingControl":
                 self.parserenderingevent(event)
