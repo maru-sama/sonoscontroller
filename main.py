@@ -137,7 +137,9 @@ class CurrentPlayer(BoxLayout):
 
         # Is this a radio track
         if type(event.current_track_meta_data) is soco.data_structures.DidlItem: #noqa
-            currenttrack = event.enqueued_transport_uri_meta_data.title
+            md = self.currentplayer.get_current_track_info()
+            currenttrack = "%s - %s\n%s" % (md['artist'],md['title'],
+                                            md['album'])
         else:
             currenttrack = "%s - %s\n%s" % (metadata.creator,
                                             metadata.title,
