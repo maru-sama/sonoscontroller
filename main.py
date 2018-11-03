@@ -136,10 +136,8 @@ class CurrentPlayer(BoxLayout):
         self.update_albumart(albumart)
 
         # Is this a radio track
-        if type(event.current_track_meta_data) is soco.data_structures.DidlItem: #noqa
-            md = self.currentplayer.get_current_track_info()
-            currenttrack = "%s - %s\n%s" % (md['artist'],md['title'],
-                                            md['album'])
+        if type(metadata) is soco.data_structures.DidlItem:
+            currenttrack = metadata.stream_content
         else:
             currenttrack = "%s - %s\n%s" % (metadata.creator,
                                             metadata.title,
@@ -157,7 +155,6 @@ class CurrentPlayer(BoxLayout):
                 self.parserenderingevent(event)
             else:
                 self.parseavevent(event)
-
 
     def volumeslider_touch_down(self, instance, touch):
         if instance.collide_point(*touch.pos):
