@@ -171,7 +171,6 @@ class CurrentPlayer(BoxLayout):
             player.unjoin()
         else:
             player.join(self.currentplayer)
-        self.updatename()
 
     def editgroup(self, widget):
         self.dropdown.clear_widgets()
