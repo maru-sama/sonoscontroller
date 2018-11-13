@@ -11,6 +11,7 @@
     Label:
         text: root.playername
         size_hint: (1,0.1)
+        font_size: 25
     BoxLayout:
         orientation: "horizontal"
         padding: (50, 0, 40, 0)
@@ -20,6 +21,7 @@
             source: root.albumart
             size: self.texture_size
             size_hint: (0.9,1)
+            allow_stretch: True
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             on_touch_down: root.swipe_start(*args)
             on_touch_up: root.swipe_stop(*args)
@@ -39,6 +41,7 @@
         size_hint: (1,0.1)
         text_size: self.size
         halign: "center"
+        font_size: 20
     BoxLayout:
         orientation: "horizontal"
         size_hint: (1,0.2)
