@@ -222,12 +222,17 @@ class Controller(BoxLayout):
             try:
                 player = soco.discovery.any_soco()
                 if player:
-                    self.players = [x.coordinator for x in
+                    players = [x.coordinator for x in
                                     sorted(player.all_groups,
                                            key=lambda x: x.label)]
+                    self.update_players(players)
             except:
                 pass
             sleep(2.0)
+
+    @mainthread
+    def update_players(self, players):
+       self.players = players
 
     def on_players(self, instance, value):
         if isinstance(self.player, CurrentPlayer):
