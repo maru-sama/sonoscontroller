@@ -95,6 +95,7 @@ class CurrentPlayer(BoxLayout):
                                     title="Radio")
         self.stationdropdown.select(station['title'])
 
+    @mainthread
     def parserenderingevent(self, event):
         if event.variables.get('output_fixed') == 1:
             self.ids.playervolume.disabled = True
@@ -110,9 +111,6 @@ class CurrentPlayer(BoxLayout):
                 pass
 
     @mainthread
-    def update_albumart(self, url):
-        self.albumart = url
-
     def parseavevent(self, event):
         playerstate = event.transport_state
         if playerstate == "TRANSITIONING":
@@ -133,16 +131,23 @@ class CurrentPlayer(BoxLayout):
             albumart = "http://%s:1400%s#.jpg" % (
                 self.currentplayer.ip_address,
                 metadata.album_art_uri)
-        self.update_albumart(albumart)
+        #self.update_albumart(albumart)
+        self.albumart = albumart
 
         # Is this a radio track
         if type(metadata) is soco.data_structures.DidlItem:
             currenttrack = metadata.stream_content
         else:
+            if hasattr(metadata, 'album'):
+                album = metadata.album
+            elif hasattr(event, "enqueued_transport_uri_meta_data") and \
+                    hasattr(event.enqueued_transport_uri_meta_data, 'title'):
+                album = event.enqueued_transport_uri_meta_data.title
+            else:
+                album = ""
             currenttrack = "%s - %s\n%s" % (metadata.creator,
                                             metadata.title,
-                                            metadata.album if
-                                            hasattr(metadata, 'album') else "")
+                                            album)
         self.currenttrack = currenttrack
 
     def monitor(self):
