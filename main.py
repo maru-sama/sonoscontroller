@@ -1,4 +1,5 @@
 # coding=UTF-8
+import soco
 from kivy.app import App
 from kivy.clock import mainthread
 from kivy.uix.boxlayout import BoxLayout
@@ -7,7 +8,6 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.dropdown import DropDown
 from kivy.uix.label import Label
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
-import soco
 from threading import Thread
 from time import sleep
 from functools import partial
@@ -119,7 +119,7 @@ class CurrentPlayer(BoxLayout):
         self.playerstatus = playerstate
         try:
             metadata = event.current_track_meta_data
-        except:
+        except AttributeError:
             return
 
         # This can happen if the the player becomes part of a group
@@ -131,7 +131,7 @@ class CurrentPlayer(BoxLayout):
             albumart = "http://%s:1400%s#.jpg" % (
                 self.currentplayer.ip_address,
                 metadata.album_art_uri)
-        #self.update_albumart(albumart)
+        # self.update_albumart(albumart)
         self.albumart = albumart
 
         # Is this a radio track
@@ -205,7 +205,7 @@ class CurrentPlayer(BoxLayout):
                     self.currentplayer.previous()
                 elif touch.x < self.swipe:
                     self.currentplayer.next()
-            except:
+            except soco.exceptions.SoCoUPnPException:
                 pass
             return True
 
@@ -228,8 +228,8 @@ class Controller(BoxLayout):
                 player = soco.discovery.any_soco()
                 if player:
                     players = [x.coordinator for x in
-                                    sorted(player.all_groups,
-                                           key=lambda x: x.label)]
+                               sorted(player.all_groups,
+                                      key=lambda x: x.label)]
                     self.update_players(players)
             except:
                 pass
@@ -237,7 +237,7 @@ class Controller(BoxLayout):
 
     @mainthread
     def update_players(self, players):
-       self.players = players
+        self.players = players
 
     def on_players(self, instance, value):
         if isinstance(self.player, CurrentPlayer):
