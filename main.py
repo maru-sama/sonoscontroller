@@ -33,6 +33,7 @@ class CurrentPlayer(BoxLayout):
     def __init__(self, player, **kwargs):
         BoxLayout.__init__(self, **kwargs)
         self.queue = Queue()
+        self.albumart = "data/logo/kivy-icon-256.png"
         self.activeslider = False
         self.dropdown = DropDown()
         self.stationdropdown = DropDown()
