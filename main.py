@@ -54,12 +54,12 @@ class CurrentPlayer(BoxLayout):
         if self.rendering:
             try:
                 self.rendering.unsubscribe()
-            except:
+            except Exception:
                 pass
         if self.info:
             try:
                 self.info.unsubscribe()
-            except:
+            except Exception:
                 pass
 
     def volumechanged(self, instance, value):
@@ -67,7 +67,7 @@ class CurrentPlayer(BoxLayout):
             if self.activeslider:
                 for p in self.currentplayer.group.members:
                     p.volume = int(value)
-        except:
+        except Exception:
             pass
 
     def play(self):
@@ -76,7 +76,7 @@ class CurrentPlayer(BoxLayout):
         else:
             try:
                 self.currentplayer.play()
-            except:
+            except Exception:
                 pass
 
     def radiostations(self, widget):
@@ -107,12 +107,16 @@ class CurrentPlayer(BoxLayout):
         if not self.activeslider:
             try:
                 self.ids.playervolume.value = int(event.volume['Master'])
-            except:
+            except Exception:
                 pass
 
     @mainthread
     def parseavevent(self, event):
-        playerstate = event.transport_state
+        try:
+            playerstate = event.transport_state
+        except AttributeError:
+            return
+
         if playerstate == "TRANSITIONING":
             return
 
@@ -121,7 +125,6 @@ class CurrentPlayer(BoxLayout):
             metadata = event.current_track_meta_data
         except AttributeError:
             return
-
         # This can happen if the the player becomes part of a group
         if metadata == "" or not hasattr(metadata, "album_art_uri"):
             return
@@ -158,7 +161,7 @@ class CurrentPlayer(BoxLayout):
 
             if event.service.service_type == "RenderingControl":
                 self.parserenderingevent(event)
-            else:
+            elif event.service.service_type == "AVTransport":
                 self.parseavevent(event)
 
     def volumeslider_touch_down(self, instance, touch):
@@ -231,7 +234,7 @@ class Controller(BoxLayout):
                                sorted(player.all_groups,
                                       key=lambda x: x.label)]
                     self.update_players(players)
-            except:
+            except Exception:
                 pass
             sleep(2.0)
 
