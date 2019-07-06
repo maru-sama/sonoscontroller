@@ -24,11 +24,10 @@ class Placeholder(Label):
 
 
 class CurrentPlayer(BoxLayout):
-    players = ListProperty()
     playername = StringProperty()
     playerstatus = StringProperty()
     currenttrack = StringProperty()
-    albumart = ObjectProperty()
+    albumart = StringProperty()
 
     def __init__(self, player, **kwargs):
         BoxLayout.__init__(self, **kwargs)
