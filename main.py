@@ -40,7 +40,7 @@ class CurrentPlayer(BoxLayout):
         self.playerstatus = "Pending ...."
         self.playername = self.currentplayer.group.label
         self.swipe = 0
-        self.rendering = self.currentplayer.renderingControl.subscribe(
+        self.rendering = self.currentplayer.groupRenderingControl.subscribe(
             auto_renew=True, event_queue=self.queue)
         self.info = self.currentplayer.avTransport.subscribe(
             auto_renew=True, event_queue=self.queue)
@@ -65,8 +65,7 @@ class CurrentPlayer(BoxLayout):
     def volumechanged(self, instance, value):
         try:
             if self.activeslider:
-                for p in self.currentplayer.group.members:
-                    p.volume = int(value)
+                self.currentplayer.group.volume = int(value)
         except Exception:
             pass
 
@@ -97,7 +96,7 @@ class CurrentPlayer(BoxLayout):
 
     @mainthread
     def parserenderingevent(self, event):
-        if event.variables.get('output_fixed') == 1:
+        if event.variables.get('group_volume_changeable') == '0':
             self.ids.playervolume.disabled = True
             self.ids.playervolume.value = 100
             return
@@ -106,7 +105,7 @@ class CurrentPlayer(BoxLayout):
 
         if not self.activeslider:
             try:
-                self.ids.playervolume.value = int(event.volume['Master'])
+                self.ids.playervolume.value = int(event.group_volume)
             except Exception:
                 pass
 
@@ -159,7 +158,7 @@ class CurrentPlayer(BoxLayout):
             if event is None:
                 return
 
-            if event.service.service_type == "RenderingControl":
+            if event.service.service_type == "GroupRenderingControl":
                 self.parserenderingevent(event)
             elif event.service.service_type == "AVTransport":
                 self.parseavevent(event)
