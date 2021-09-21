@@ -41,9 +41,11 @@ class CurrentPlayer(BoxLayout):
         self.playername = self.currentplayer.group.label
         self.swipe = 0
         self.rendering = self.currentplayer.groupRenderingControl.subscribe(
-            auto_renew=True, event_queue=self.queue)
+            auto_renew=True, event_queue=self.queue
+        )
         self.info = self.currentplayer.avTransport.subscribe(
-            auto_renew=True, event_queue=self.queue)
+            auto_renew=True, event_queue=self.queue
+        )
         self.thread = Thread(target=self.monitor)
         self.thread.daemon = True
         self.thread.start()
@@ -70,7 +72,7 @@ class CurrentPlayer(BoxLayout):
             pass
 
     def play(self):
-        if (self.playerstatus == "PLAYING"):
+        if self.playerstatus == "PLAYING":
             self.currentplayer.pause()
         else:
             try:
@@ -80,23 +82,28 @@ class CurrentPlayer(BoxLayout):
 
     def radiostations(self, widget):
         self.stationdropdown.clear_widgets()
-        for station in self.currentplayer.get_favorite_radio_stations()['favorites']: # noqa
-            btn = Button(text='%s' % (station['title'],),
-                         size_hint_y=None, height=60,
-                         halign="center", valign="middle")
+        for station in self.currentplayer.get_favorite_radio_stations()[
+            "favorites"
+        ]:
+            btn = Button(
+                text="%s" % (station["title"],),
+                size_hint_y=None,
+                height=60,
+                halign="center",
+                valign="middle",
+            )
             btn.bind(size=btn.setter("text_size"))
             btn.bind(on_release=partial(self.playradio, station))
             self.stationdropdown.add_widget(btn)
         self.stationdropdown.open(widget)
 
     def playradio(self, station, widget):
-        self.currentplayer.play_uri(uri=station['uri'], #noqa
-                                    title="Radio")
-        self.stationdropdown.select(station['title'])
+        self.currentplayer.play_uri(uri=station["uri"], title="Radio")
+        self.stationdropdown.select(station["title"])
 
     @mainthread
     def parserenderingevent(self, event):
-        if event.variables.get('group_volume_changeable') == '0':
+        if event.variables.get("group_volume_changeable") == "0":
             self.ids.playervolume.disabled = True
             self.ids.playervolume.value = 100
             return
@@ -132,7 +139,8 @@ class CurrentPlayer(BoxLayout):
         else:
             albumart = "http://%s:1400%s#.jpg" % (
                 self.currentplayer.ip_address,
-                metadata.album_art_uri)
+                metadata.album_art_uri,
+            )
         # self.update_albumart(albumart)
         self.albumart = albumart
 
@@ -140,16 +148,15 @@ class CurrentPlayer(BoxLayout):
         if type(metadata) is soco.data_structures.DidlItem:
             currenttrack = metadata.stream_content
         else:
-            if hasattr(metadata, 'album'):
+            if hasattr(metadata, "album"):
                 album = metadata.album
-            elif hasattr(event, "enqueued_transport_uri_meta_data") and \
-                    hasattr(event.enqueued_transport_uri_meta_data, 'title'):
+            elif hasattr(event, "enqueued_transport_uri_meta_data") and hasattr(
+                event.enqueued_transport_uri_meta_data, "title"
+            ):
                 album = event.enqueued_transport_uri_meta_data.title
             else:
                 album = ""
-            currenttrack = "%s - %s\n%s" % (metadata.creator,
-                                            metadata.title,
-                                            album)
+            currenttrack = "%s - %s\n%s" % (metadata.creator, metadata.title, album)
         self.currenttrack = currenttrack
 
     def monitor(self):
@@ -181,10 +188,10 @@ class CurrentPlayer(BoxLayout):
 
     def editgroup(self, widget):
         self.dropdown.clear_widgets()
-        for player in sorted(self.currentplayer.all_zones,
-                             key=lambda x: x.player_name):
-            btn = ToggleButton(text='%s' % (player.player_name,),
-                               size_hint_y=None, height=60)
+        for player in sorted(self.currentplayer.all_zones, key=lambda x: x.player_name):
+            btn = ToggleButton(
+                text="%s" % (player.player_name,), size_hint_y=None, height=60
+            )
             btn.bind(on_release=partial(self.makegroup, player))
             if player in self.currentplayer.group.members:
                 btn.state = "down"
@@ -229,9 +236,10 @@ class Controller(BoxLayout):
             try:
                 player = soco.discovery.any_soco()
                 if player:
-                    players = [x.coordinator for x in
-                               sorted(player.all_groups,
-                                      key=lambda x: x.label)]
+                    players = [
+                        x.coordinator
+                        for x in sorted(player.all_groups, key=lambda x: x.label)
+                    ]
                     self.update_players(players)
             except Exception:
                 pass
@@ -264,7 +272,6 @@ class Controller(BoxLayout):
 
 
 class Player(Button):
-
     def __init__(self, sonos, **kwargs):
         Button.__init__(self, **kwargs)
         self.controller = sonos
@@ -275,7 +282,6 @@ class Player(Button):
 
 
 class SonosApp(App):
-
     def build(self):
         self.root = Controller()
         return self.root
