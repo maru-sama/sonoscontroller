@@ -156,7 +156,8 @@ class CurrentPlayer(BoxLayout):
                 album = event.enqueued_transport_uri_meta_data.title
             else:
                 album = ""
-            currenttrack = "%s - %s\n%s" % (metadata.creator, metadata.title, album)
+            creator = metadata.creator if hasattr(metadata, "creator") else ""
+            currenttrack = "%s - %s\n%s" % (creator, metadata.title, album)
         self.currenttrack = currenttrack
 
     def monitor(self):
